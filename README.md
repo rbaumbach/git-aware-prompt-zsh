@@ -9,6 +9,8 @@ I've used [git-aware-prompt](https://github.com/jimeh/git-aware-prompt) at this 
 Add the following to your `.zprofile` then `source .zprofile`:
 
 ```zsh
+# zsh git-aware-prompt
+
 setopt PROMPT_SUBST
 
 # Define colors
@@ -34,21 +36,27 @@ git_branch() {
       dirty=0
     fi
 
+    # Wrap color vars in %{ %} so zsh ignores them for cursor positioning
+
+    local c_cyn="%{${txtcyn}%}"
+    local c_red="%{${txtred}%}"
+    local c_rst="%{${txtrst}%}"
+
     if [[ -n $is_detached ]]; then
       # Detached HEAD
 
       if [[ $dirty -eq 1 ]]; then
-        echo " ${txtcyn}(${branch} *)${txtrst}"
+        echo " ${c_cyn}(${branch} *)${c_rst}"
       else
-        echo " ${txtcyn}(${branch})${txtrst}"
+        echo " ${c_cyn}(${branch})${c_rst}"
       fi
     else
       # Normal branch
 
       if [[ $dirty -eq 1 ]]; then
-        echo " ${txtcyn}(${branch})${txtred}*${txtrst}"
+        echo " ${c_cyn}(${branch})${c_red}*${c_rst}"
       else
-        echo " ${txtcyn}(${branch})${txtrst}"
+        echo " ${c_cyn}(${branch})${c_rst}"
       fi
     fi
   fi
