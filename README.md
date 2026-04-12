@@ -11,7 +11,7 @@ Shows:
 Clone the repo:
 
 ```bash
-git clone https://github.com/rbaumbach/git-aware-prompt-zsh.git ~/git-aware-prompt-zsh
+git clone git@github.com:rbaumbach/git-aware-prompt-zsh.git ~/git-aware-prompt-zsh
 ```
 
 Add this to your `~/.zprofile`:
