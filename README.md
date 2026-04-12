@@ -2,9 +2,7 @@
 
 A simple, fast, git-aware prompt for zsh.
 
-Shows:
-- current branch
-- dirty state
+![git-aware prompt](terminal.png)
 
 ## Installation
 
