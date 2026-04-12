@@ -1,4 +1,4 @@
-# git-aware-prompt-zsh
+# >_ git-aware-prompt-zsh
 
 A simple, fast, git-aware prompt for zsh.
 
