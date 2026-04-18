@@ -8,6 +8,10 @@ txtcyn="$(tput setaf 6 2>/dev/null || echo '\033[0;36m')"  # Cyan
 txtred="$(tput setaf 1 2>/dev/null || echo '\033[0;31m')"  # Red
 txtrst="$(tput sgr0 2>/dev/null || echo '\033[0m')"        # Reset
 
+precmd() {
+  PROMPT='%n@%m %1~$(git_branch) %# '
+}
+
 git_branch() {
   local branch dirty
   local c_cyn="%{${txtcyn}%}"
@@ -57,8 +61,4 @@ new_repo_branch() {
   else
     echo " ${c_cyn}(${branch}:init)${c_rst}"
   fi
-}
-
-precmd() {
-  PROMPT='%n@%m %1~$(git_branch) %# '
 }
