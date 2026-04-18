@@ -9,7 +9,7 @@ txtred="$(tput setaf 1 2>/dev/null || echo '\033[0;31m')"  # Red
 txtrst="$(tput sgr0 2>/dev/null || echo '\033[0m')"        # Reset
 
 git_branch() {
-  local branch dirty is_detached
+  local branch dirty
   local c_cyn="%{${txtcyn}%}"
   local c_red="%{${txtred}%}"
   local c_rst="%{${txtrst}%}"
@@ -20,12 +20,11 @@ git_branch() {
 
   if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
     new_repo_branch
-    
+
     return
   fi
 
   if ! branch=$(git symbolic-ref --short HEAD 2>/dev/null); then
-    is_detached=1
     branch="detached"
   fi
 
