@@ -14,9 +14,6 @@ precmd() {
 
 git_branch() {
   local branch dirty
-  local c_cyn="%{${txtcyn}%}"
-  local c_red="%{${txtred}%}"
-  local c_rst="%{${txtrst}%}"
 
   if ! git rev-parse --is-inside-work-tree &>/dev/null; then
     return
@@ -40,25 +37,35 @@ git_branch() {
     dirty=0
   fi
 
-  if [[ $dirty -eq 1 ]]; then
-    echo " ${c_cyn}(${branch})${c_red}*${c_rst}"
-  else
-    echo " ${c_cyn}(${branch})${c_rst}"
-  fi
+  print_git_branch "$branch" "$dirty"
 }
 
 new_repo_branch() {
-  local branch
-  local c_cyn="%{${txtcyn}%}"
-  local c_red="%{${txtred}%}"
-  local c_rst="%{${txtrst}%}"
+  local branch dirty
 
   branch=$(git symbolic-ref --short HEAD 2>/dev/null)
 
   if [[ -n $(git diff --cached --name-only 2>/dev/null) ]] || \
      [[ -n $(git ls-files --others --exclude-standard 2>/dev/null) ]]; then
-    echo " ${c_cyn}(${branch}:init)${c_red}*${c_rst}"
+    dirty=1
   else
-    echo " ${c_cyn}(${branch}:init)${c_rst}"
+    dirty=0
+  fi
+
+  print_git_branch "${branch}:init" "$dirty"
+}
+
+print_git_branch() {
+  local branch="$1"
+  local dirty="$2"
+
+  local c_cyn="%{${txtcyn}%}"
+  local c_red="%{${txtred}%}"
+  local c_rst="%{${txtrst}%}"
+
+  if [[ "$dirty" -eq 1 ]]; then
+    echo " ${c_cyn}(${branch})${c_red}*${c_rst}"
+  else
+    echo " ${c_cyn}(${branch})${c_rst}"
   fi
 }
