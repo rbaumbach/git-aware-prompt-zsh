@@ -13,13 +13,13 @@ precmd() {
 }
 
 git_branch() {
-  local branch dirty
+  local branch
 
-  if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+  if ! is_git_repo; then
     return
   fi
 
-  if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
+  if is_new_repo; then
     new_repo_branch
 
     return
@@ -29,43 +29,57 @@ git_branch() {
     branch="detached"
   fi
 
-  if ! git diff --quiet --ignore-submodules -- || \
-     ! git diff --cached --quiet --ignore-submodules -- || \
-     [[ -n $(git ls-files --others --exclude-standard 2>/dev/null) ]]; then
-    dirty=1
-  else
-    dirty=0
-  fi
-
-  print_git_branch "$branch" "$dirty"
+  print_git_branch "$branch" is_git_dirty
 }
 
 new_repo_branch() {
-  local branch dirty
+  local branch
 
   branch=$(git symbolic-ref --short HEAD 2>/dev/null)
 
-  if [[ -n $(git diff --cached --name-only 2>/dev/null) ]] || \
-     [[ -n $(git ls-files --others --exclude-standard 2>/dev/null) ]]; then
-    dirty=1
-  else
-    dirty=0
-  fi
+  print_git_branch "${branch}:init" is_new_repo_dirty
+}
 
-  print_git_branch "${branch}:init" "$dirty"
+# Helper functions
+
+is_git_repo() {
+  git rev-parse --is-inside-work-tree &>/dev/null
+}
+
+is_new_repo() {
+  ! git rev-parse --verify HEAD >/dev/null 2>&1
 }
 
 print_git_branch() {
   local branch="$1"
-  local dirty="$2"
+  local dirty_fn="$2"
 
   local c_cyn="%{${txtcyn}%}"
   local c_red="%{${txtred}%}"
   local c_rst="%{${txtrst}%}"
 
-  if [[ "$dirty" -eq 1 ]]; then
+  if $dirty_fn; then
     echo " ${c_cyn}(${branch})${c_red}*${c_rst}"
   else
     echo " ${c_cyn}(${branch})${c_rst}"
+  fi
+}
+
+is_git_dirty() {
+  if ! git diff --quiet --ignore-submodules -- || \
+     ! git diff --cached --quiet --ignore-submodules -- || \
+     [[ -n $(git ls-files --others --exclude-standard 2>/dev/null) ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+is_new_repo_dirty() {
+  if [[ -n $(git diff --cached --name-only 2>/dev/null) ]] || \
+     [[ -n $(git ls-files --others --exclude-standard 2>/dev/null) ]]; then
+    return 0
+  else
+    return 1
   fi
 }
