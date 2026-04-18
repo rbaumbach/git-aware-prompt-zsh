@@ -9,45 +9,54 @@ txtred="$(tput setaf 1 2>/dev/null || echo '\033[0;31m')"  # Red
 txtrst="$(tput sgr0 2>/dev/null || echo '\033[0m')"        # Reset
 
 git_branch() {
-  if git rev-parse --is-inside-work-tree &>/dev/null; then
-    local branch dirty is_detached
+  local branch dirty is_detached
+  local c_cyn="%{${txtcyn}%}"
+  local c_red="%{${txtred}%}"
+  local c_rst="%{${txtrst}%}"
 
-    if ! branch=$(git symbolic-ref --short HEAD 2>/dev/null); then
-      is_detached=1
-      branch="detached *"
-    fi
+  if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+    return
+  fi
 
-    # Determine if dirty
+  if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
+    new_repo_branch
+    
+    return
+  fi
 
-    if ! git diff --quiet --ignore-submodules -- || ! git diff --cached --quiet --ignore-submodules --; then
-      dirty=1
-    else
-      dirty=0
-    fi
+  if ! branch=$(git symbolic-ref --short HEAD 2>/dev/null); then
+    is_detached=1
+    branch="detached"
+  fi
 
-    # Wrap color vars in %{ %} so zsh ignores them for cursor positioning
+  if ! git diff --quiet --ignore-submodules -- || \
+     ! git diff --cached --quiet --ignore-submodules -- || \
+     [[ -n $(git ls-files --others --exclude-standard 2>/dev/null) ]]; then
+    dirty=1
+  else
+    dirty=0
+  fi
 
-    local c_cyn="%{${txtcyn}%}"
-    local c_red="%{${txtred}%}"
-    local c_rst="%{${txtrst}%}"
+  if [[ $dirty -eq 1 ]]; then
+    echo " ${c_cyn}(${branch})${c_red}*${c_rst}"
+  else
+    echo " ${c_cyn}(${branch})${c_rst}"
+  fi
+}
 
-    if [[ -n $is_detached ]]; then
-      # Detached HEAD
+new_repo_branch() {
+  local branch
+  local c_cyn="%{${txtcyn}%}"
+  local c_red="%{${txtred}%}"
+  local c_rst="%{${txtrst}%}"
 
-      if [[ $dirty -eq 1 ]]; then
-        echo " ${c_cyn}(${branch} *)${c_rst}"
-      else
-        echo " ${c_cyn}(${branch})${c_rst}"
-      fi
-    else
-      # Normal branch
+  branch=$(git symbolic-ref --short HEAD 2>/dev/null)
 
-      if [[ $dirty -eq 1 ]]; then
-        echo " ${c_cyn}(${branch})${c_red}*${c_rst}"
-      else
-        echo " ${c_cyn}(${branch})${c_rst}"
-      fi
-    fi
+  if [[ -n $(git diff --cached --name-only 2>/dev/null) ]] || \
+     [[ -n $(git ls-files --others --exclude-standard 2>/dev/null) ]]; then
+    echo " ${c_cyn}(${branch}:init)${c_red}*${c_rst}"
+  else
+    echo " ${c_cyn}(${branch}:init)${c_rst}"
   fi
 }
 
