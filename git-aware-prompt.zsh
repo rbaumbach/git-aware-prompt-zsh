@@ -2,6 +2,12 @@
 
 setopt PROMPT_SUBST
 
+if [[ -z "$ZSH_VERSION" && -z "$GIT_AWARE_PROMPT_ZSH_WARNED" ]]; then
+  echo "git-aware-prompt-zsh was designed for zsh. You may see unexpected behavior."
+
+  GIT_AWARE_PROMPT_ZSH_WARNED=1
+fi
+
 # Define colors
 
 txtcyn="$(tput setaf 6 2>/dev/null || echo '\033[0;36m')"  # Cyan
